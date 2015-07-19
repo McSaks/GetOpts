@@ -7,7 +7,7 @@
 
 Supported formats of an option with a value
 both for long and short options are: `-o val`, `-o=val`, and `-o:val`.
-No terse form like `-n10` is supported.
+Terse form like `-n10` is supported for short options.
 Option bundling (`-abc` as `-a -b -c`) may be used only for flag or switch single-letter options.
 
 If several same-key options appear, the last one wins (_count_ option behaves differently, see below).
@@ -22,6 +22,8 @@ each being of the form `name -> type` where `name` is either
   * list of strings, which means either of them works.
     The first element in considered as a key.
 
+Leading dashes in specification are optional.
+
 `type` specifies the option type and default value. Supported types are:
 
   - With a value:
@@ -32,7 +34,6 @@ each being of the form `name -> type` where `name` is either
     * __converted__ value: `type` is either `func -> GOMandatory` or `func -> value`.
       Like previous, but given string is passed to `func` converter to get the final value.
       The default value given is not converted and is returned as is.
-      (__Yet to be implemented.__)
 
   - Without a value:
 
