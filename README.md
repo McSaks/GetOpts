@@ -8,21 +8,25 @@
 Supported formats of an option with a value
 both for long and short options are: `-o val`, `-o=val`, and `-o:val`.
 Terse form like `-n10` is supported for short options.
-Option bundling (`-abc` as `-a -b -c`) may be used only for flag or switch single-letter options.
+Option bundling (`-abc` as `-a -b -c`) may be used for single-letter options.
+An option requiring a value must be the last one in a bundle, if any;
+in this case, a value may be stuck to the bundle, each of the following is legal:
+`-abcn10`, `-abcn=10`, `-abcn:10`, `-abcn 10`.
 
 If several same-key options appear, the last one wins (_count_ option behaves differently, see below).
 
-Returns list of two lists `{ {positionalArgs, ...}, {key -> value, ...} }`.
+Returns list of two lists `{ {key -> value, ...}, {positionalArgs, ...} }`.
 
 `spec` is a list or association of option specifications,
 each being of the form `name -> type` where `name` is either
 
-  * string option like one-letter `"o"` or long `"-option"` for `-o` or `--option`, or
+  * string option like one-letter `"o"` or long `"option"` for `-o` or `--option`, or
 
-  * list of strings, which means either of them works.
-    The first element in considered as a key.
+  * non-empty list of synonymic strings, which means either of them works.
+    The first element is considered as a key.
 
-Leading dashes in specification are optional.
+One or two leading dashes in a specification are optional: `o`, `-o`, and `--o` are the same.
+A one-letter option still may be used as if it were a long one.
 
 `type` specifies the option type and default value. Supported types are:
 
@@ -62,11 +66,11 @@ Needs["GetOps`"];
 Set option specification:
 ```mma
 spec = {
-  {"-mand", "m"} -> GOMandatory,
-  {"-opt", "o"} -> "some default value",
-  {"-count", "c", "n"} -> GOCount,
-  "-flag" -> GOFlag,
-  "-switch" -> False
+  {"mand", "m"} -> GOMandatory,
+  {"opt", "o"} -> "some default value",
+  {"count", "c", "n"} -> GOCount,
+   "flag" -> GOFlag,
+   "switch" -> False
 };
 ```
 
@@ -74,27 +78,19 @@ Get command-line options:
 ```mma
 argv = Rest[$CommandLine];
 (* or *)
-argv = {
-  one,  two,
-  --mand=0,
-  --cnt,  -c,  -n,
-  ++switch,
-  three,
-  -o, val,
-  -m:1,
-  --, (* no more arguments interpreted as keyword options *)
-  --some--numbered--option--
-};
+argv = "one two --mand=0 --count -cn ++switch \
+        three -oval -m:1 -- \
+        --some--positional--arg--" // StringSplit;
 ```
 
 Get result:
 ```mma
-GetOpts[argv, spec]  ⟶  {
-  {"one", "two", "three", "--some--numbered--option--"},
-  {"-mand" -> "1",
-   "-opt" -> "val",
-   "-count" -> 3,
-   "-flag" -> False,
-   "-switch" -> True}
+GetOpts[argv, spec, Orderless -> True]  ⟶  {
+  {"mand" -> "1",
+   "opt" -> "val",
+   "count" -> 3,
+   "flag" -> False,
+   "switch" -> True},
+  {"one", "two", "three", "--some--positional--arg--"}
 }
 ```
