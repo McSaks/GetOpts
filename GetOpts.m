@@ -199,10 +199,13 @@ normalizeShort[str_, argv_, argspec_, pm_, n_] := With[{
       If[numnoarg == StringLength[opt],
         {noarg, n},
       (* else *)
+       With[{ optlett = StringTake[opt, {numnoarg + 1}] },
+        If[!MemberQ[warg, optlett],
+          fail[GetOpts::unknopt, optlett] ];
         Append[
           noarg,
           normalizeLongArg[ (* parse rest as if it were long *)
-            StringTake[opt, {numnoarg + 1}],
+            optlett,
             argv,
             StringSplit[
               StringReplace[StringDrop[opt, numnoarg],
@@ -214,6 +217,7 @@ normalizeShort[str_, argv_, argspec_, pm_, n_] := With[{
             n
           ]
         ]
+       ]
       ] ~Replace~ ( bundle[most___, {rule_, num_}] :> {bundle[most, rule], num} )
     ]
   ]
