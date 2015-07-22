@@ -123,6 +123,10 @@ normalizeOne[argv_, argspec_, n_] := With[{str = argv[[n]]},
     str === "--",
       nonoption,
     
+    (* just - and + are arguments *)
+    {"-", "+"} ~MemberQ~ str,
+      nonoption,
+    
     (* long option *)
     MemberQ[{"--", "+-", "++"}, Quiet@StringTake[str, 2]],
       normalizeLong[str, argv, argspec, plusminus[StringTake[str, 1]], n],
@@ -248,6 +252,7 @@ rules[argv_, argspec_] := norm2rules[normalize[argv, argspec, 1]];
 (* Prepare to retrieve passed option values *)
 
 optQ[opt_String] := StringMatchQ[opt, ("-" | "+") ~~ __];
+optQ["-"|"+"] = False;
 optQ[opt_] := (Message[optQ::string, 1, HoldForm[optQ[opt]]]; False);
 
 position[list_, test_] := With[{i = Position[list, _?test, 1, 1, Heads -> False]},
