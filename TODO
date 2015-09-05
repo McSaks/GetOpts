@@ -1,0 +1,28 @@
+* Add GetOpts’ option to treat one-dash options as long ones
+  (Java style?) and use no bundling: -option.
+
+* Add ‘alias’-type option. Or, maybe, ‘assignment’-type? Or both?
+    
+    — "a" -> GOAlias["--option=a"], or
+    
+    — "a" -> GOSet["option"] giving {{…}, {…, "option" -> "a", …}}
+      with a rightmost set value or "option" -> None unless any is given.
+  
+  It seems that the former is more general and easier to implement.
+  In this case, a long "--option" even doesn’t need to be documented,
+  so a user sees a finite set of triggers like: --yes, --no, --maybe,
+  where the rightmost one takes over. (The caller program, of course,
+  should check the value to be in the set then.)
+  
+  Maybe, use RuleDelayed syntax: "a" :> "--option=a", which is yet
+  consedered as a wrong syntax for GetOpts?
+  
+  This may alias several options at once:
+  "do-both" :> {"--do-one", "--do-another"}.
+
+* Add GetOpts’ Number option to treat an integer option (like -42 or +5)
+  as an alias to a NUMBER option ("NUMBER" -> -42 or "NUMBER" -> 5).
+  Or, maybe, reverse the sign?
+
+* Make ugly GO* GOAway. Mark as deprecated.
+  Use more verbose *Option.
